@@ -8,7 +8,7 @@ main{max-width:900px;margin:0 auto}
 h1{font-size:1.3rem;margin:0 0 14px}
 .panel{background:#fff;border-radius:10px;padding:14px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end;margin-bottom:12px}
 label{display:grid;gap:4px;font-size:.78rem;color:#6b7280}
-input,textarea,button{font:inherit;padding:9px 10px;border:1px solid #cbd2d9;border-radius:6px}
+input,select,textarea,button{font:inherit;padding:9px 10px;border:1px solid #cbd2d9;border-radius:6px}
 button{background:#14213d;color:#fff;border:0;cursor:pointer}button.alt{background:#fff;color:#14213d;border:1px solid #14213d}
 :focus-visible{outline:3px solid #f5a623;outline-offset:1px}
 #msg{min-height:1.3em;font-size:.88rem;margin:4px 0 10px}
@@ -19,7 +19,6 @@ textarea{width:100%;min-height:80px;font-family:monospace;margin:8px 0}
 .fl.sel{border-color:#14213d}.fl i{width:10px;height:34px;border-radius:3px;flex:none}
 .fl b{font-size:1rem}.fl span{font-size:.78rem;color:#6b7280;display:block}.fl em{margin-left:auto;font-style:normal;font-size:.78rem;color:#6b7280}
 .sim{font-size:.62rem;opacity:.6;margin-top:6px}
-/* classic */
 .p{border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.14);background:#fff;display:grid;grid-template-columns:1fr 230px}
 .p .h{display:flex;justify-content:space-between;align-items:center;padding:14px 20px}
 .wm{font-size:1.4rem;font-weight:700}.wm.low{text-transform:lowercase;letter-spacing:-.5px}
@@ -32,7 +31,6 @@ textarea{width:100%;min-height:80px;font-family:monospace;margin:8px 0}
 .row{display:flex;justify-content:space-between;gap:8px}
 svg.bar{width:100%;height:64px;margin-top:auto}
 .stripe{height:7px}
-/* bold */
 .b{border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:16px}
 .b .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .b .top .wm{font-size:2rem}
@@ -43,7 +41,6 @@ svg.bar{width:100%;height:64px;margin-top:auto}
 .b .st2{border-left:2px dashed #bbb;text-align:center}
 @media screen and (max-width:720px){.p,.b .card{grid-template-columns:1fr}.st,.b .st2{border-left:0;border-top:2px dashed #b8c0cc}.g{grid-template-columns:repeat(2,1fr)}.rt .c,.b .big .c{font-size:2.2rem}}
 
-/* easyJet */
 .ez{background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.16);overflow:hidden;display:grid;grid-template-columns:1fr 250px;color:#222;font-family:Arial,Helvetica,sans-serif}
 .ez .bar1{background:#ff6600;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:7px 16px;font-size:.8rem}
 .ez .wmk{font-weight:700;font-size:1.25rem;letter-spacing:-.5px}
@@ -81,14 +78,30 @@ body *{visibility:hidden!important}
 #out>*{box-shadow:none!important;break-inside:avoid;page-break-inside:avoid;width:100%}}
 </style></head><body><main>
 <h1>Cartes d'embarquement depuis SimBrief</h1>
+<div class="panel" id="modeBar"><button id="bSb">Importer avec SimBrief</button><button id="bMan" class="alt">Saisir manuellement</button></div>
 <div class="panel">
- <label>Pseudo SimBrief<input id="user" placeholder="ex. jdupont"></label>
+ <label id="lblUser">Pseudo SimBrief<input id="user" placeholder="ex. jdupont"></label>
  <label>Passager<input id="pax" value="DUPONT/JEAN MR"></label>
  <label>Siège<input id="seat" value="12A"></label>
  <button id="go">Récupérer mon dernier vol</button>
  <button id="print" class="alt">Imprimer</button>
 </div>
-<details><summary>Ajouter d'anciens vols (JSON SimBrief)</summary>
+<div class="panel" id="manual" style="display:none">
+ <label>Compagnie<select id="mAir"></select></label>
+ <label>N° de vol<input id="mNum" placeholder="1234" inputmode="numeric"></label>
+ <label>Avion (code OACI)<input id="mAc" placeholder="A320"></label>
+ <label>Date de départ<input type="date" id="mDate"></label>
+ <label>Départ (code IATA)<input id="mFrom" maxlength="4" placeholder="CDG"></label>
+ <label>Ville ou aéroport de départ<input id="mFromN" placeholder="Paris"></label>
+ <label>Heure locale de départ<input type="time" id="mDep" value="08:00"></label>
+ <label>Décalage UTC au départ (h)<input type="number" step="0.5" id="mTzO" value="2"></label>
+ <label>Arrivée (code IATA)<input id="mTo" maxlength="4" placeholder="LHR"></label>
+ <label>Ville ou aéroport d'arrivée<input id="mToN" placeholder="Londres"></label>
+ <label>Heure locale d'arrivée<input type="time" id="mArr" value="08:30"></label>
+ <label>Décalage UTC à l'arrivée (h)<input type="number" step="0.5" id="mTzD" value="1"></label>
+ <button id="mAdd">Créer la carte</button>
+</div>
+<details id="jsonBox"><summary>Ajouter d'anciens vols (JSON SimBrief)</summary>
  <p>Ouvrez <code>https://www.simbrief.com/api/xml.fetcher.php?username=PSEUDO&amp;json=1</code>, copiez le texte et collez-le ici. Vous pouvez aussi charger plusieurs fichiers .json.</p>
  <textarea id="raw" placeholder="{ ... }"></textarea>
  <button id="parse" class="alt">Ajouter ce vol</button> <input type="file" id="files" accept=".json" multiple>
@@ -99,7 +112,6 @@ body *{visibility:hidden!important}
 </main>
 <script>
 const $=id=>document.getElementById(id);const msg=t=>$("msg").textContent=t;
-// nom, mise en page, couleur 1, couleur 2, texte sur couleur 1, minuscules, langue
 const AL={
 EJU:["easyJet","ez","#ff6600","#222","#fff",1,"en"],EZS:["easyJet","ez","#ff6600","#222","#fff",1,"en"],
 AFR:["AIR FRANCE","c","#002157","#e30613","#fff",0,"fr"],DLH:["Lufthansa","c","#05164d","#f9ba00","#fff",0,"de"],
@@ -193,7 +205,6 @@ return `<div class="p"><div><div class="h" style="background:${c1};color:${tx}">
 <div class="st"><div class="row"><div><small>${T[1]}</small><b>${v.fn}</b></div><div><small>${T[8]}</small><b>${seat}</b></div></div><div><small>${T[0]}</small><b>${pax}</b></div>
 <div class="row"><div><small>${T[9]}</small><b>${v.from}</b></div><div><small>${T[10]}</small><b>${v.to}</b></div></div>${bars(code)}${sim}</div></div>`}
 
-// historique
 let H=[];try{H=JSON.parse(localStorage.getItem("sbHist")||"[]")}catch(e){}
 let cur=null;
 const save=()=>{try{localStorage.setItem("sbHist",JSON.stringify(H))}catch(e){}};
@@ -215,5 +226,21 @@ $("files").onchange=async e=>{let n=0,last;for(const f of e.target.files){try{co
 $("print").onclick=()=>window.print();
 ["pax","seat"].forEach(i=>$(i).addEventListener("input",()=>{if(cur)show(cur)}));
 try{$("user").value=localStorage.getItem("sbUser")||""}catch(e){}
+
+const sel=$("mAir");Object.entries(AL).sort((a,b)=>a[1][0].localeCompare(b[1][0])).forEach(([k,v])=>sel.add(new Option(v[0]+" ("+k+")",k)));
+$("mDate").value=new Date().toISOString().slice(0,10);
+function setMode(m){const man=m==="man";$("manual").style.display=man?"grid":"none";$("lblUser").style.display=man?"none":"grid";$("go").style.display=man?"none":"";$("jsonBox").style.display=man?"none":"";
+$("bMan").className=man?"":"alt";$("bSb").className=man?"alt":"";try{localStorage.setItem("sbMode",m)}catch(e){}}
+$("bSb").onclick=()=>setMode("sb");$("bMan").onclick=()=>setMode("man");
+$("mAdd").onclick=()=>{const g=i=>$(i).value.trim();
+if(!g("mNum")||!g("mFrom")||!g("mTo")||!g("mDate")||!g("mDep")||!g("mArr")){msg("Remplissez le numéro de vol, la date, les deux aéroports et les deux heures.");return}
+const [Y,M,D]=g("mDate").split("-").map(Number),mn=x=>{const[h,m]=x.split(":").map(Number);return h*60+m};
+const oo=(parseFloat($("mTzO").value)||0)*3600,dd=(parseFloat($("mTzD").value)||0)*3600;
+const out=Date.UTC(Y,M-1,D)/1000+mn(g("mDep"))*60-oo;let inn=Date.UTC(Y,M-1,D)/1000+mn(g("mArr"))*60-dd;while(inn<=out)inn+=86400;
+const ap=(c,n,tz)=>({iata_code:c.toUpperCase(),icao_code:c.toUpperCase(),name:n||c.toUpperCase(),city:n||c.toUpperCase(),timezone:tz/3600});
+const d={general:{icao_airline:$("mAir").value,flight_number:g("mNum")},origin:ap(g("mFrom"),g("mFromN"),oo),destination:ap(g("mTo"),g("mToN"),dd),
+times:{sched_out:out,sched_in:inn,orig_timezone:oo,dest_timezone:dd},aircraft:{icaocode:g("mAc").toUpperCase()||"-"},params:{request_id:"manual-"+Date.now()}};
+const id=add(d);if(id){msg("Vol créé.");show(id)}};
+try{setMode(localStorage.getItem("sbMode")==="man"?"man":"sb")}catch(e){setMode("sb")}
 list();if(H.length)show(H[0].id);
 </script></body></html>
