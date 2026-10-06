@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes d'embarquement SimBrief</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#e9ecef;font-family:Arial,Helvetica,sans-serif;color:#14213d;padding:20px 14px}
+main{max-width:900px;margin:0 auto}
+h1{font-size:1.3rem;margin:0 0 14px}
+.panel{background:#fff;border-radius:10px;padding:14px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));align-items:end;margin-bottom:12px}
+label{display:grid;gap:4px;font-size:.78rem;color:#6b7280}
+input,textarea,button{font:inherit;padding:9px 10px;border:1px solid #cbd2d9;border-radius:6px}
+button{background:#14213d;color:#fff;border:0;cursor:pointer}button.alt{background:#fff;color:#14213d;border:1px solid #14213d}
+:focus-visible{outline:3px solid #f5a623;outline-offset:1px}
+#msg{min-height:1.3em;font-size:.88rem;margin:4px 0 10px}
+details{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:.85rem}
+textarea{width:100%;min-height:80px;font-family:monospace;margin:8px 0}
+#list{display:grid;gap:6px;margin-bottom:18px}
+.fl{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid transparent;border-radius:8px;padding:9px 12px;cursor:pointer;text-align:left;color:#14213d;width:100%}
+.fl.sel{border-color:#14213d}.fl i{width:10px;height:34px;border-radius:3px;flex:none}
+.fl b{font-size:1rem}.fl span{font-size:.78rem;color:#6b7280;display:block}.fl em{margin-left:auto;font-style:normal;font-size:.78rem;color:#6b7280}
+.sim{font-size:.62rem;opacity:.6;margin-top:6px}
+/* classic */
+.p{border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.14);background:#fff;display:grid;grid-template-columns:1fr 230px}
+.p .h{display:flex;justify-content:space-between;align-items:center;padding:14px 20px}
+.wm{font-size:1.4rem;font-weight:700}.wm.low{text-transform:lowercase;letter-spacing:-.5px}
+.rt{display:flex;align-items:center;gap:12px;padding:16px 20px 6px}
+.rt .c{font-size:3rem;font-weight:700;line-height:1}.rt small{display:block;font-size:.72rem;color:#6b7280;max-width:170px}
+.rt .a{flex:1;text-align:center;font-size:1.6rem}
+.g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px;padding:12px 20px 14px}
+.g small,.st small{display:block;font-size:.66rem;color:#6b7280;margin-bottom:2px}.g b,.st b{font-size:1.05rem}
+.st{border-left:2px dashed #b8c0cc;padding:14px;background:#fafbfc;display:flex;flex-direction:column;gap:9px}
+.row{display:flex;justify-content:space-between;gap:8px}
+svg.bar{width:100%;height:64px;margin-top:auto}
+.stripe{height:7px}
+/* bold */
+.b{border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.18);padding:16px}
+.b .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.b .top .wm{font-size:2rem}
+.b .card{background:#fff;color:#111;border-radius:10px;display:grid;grid-template-columns:1fr 210px}
+.b .card>div{padding:16px 18px}
+.b .big{display:flex;align-items:center;gap:14px}.b .big .c{font-size:3.4rem;font-weight:800;line-height:1}
+.b .qr{width:130px;height:130px;margin:auto}
+.b .st2{border-left:2px dashed #bbb;text-align:center}
+@media screen and (max-width:720px){.p,.b .card{grid-template-columns:1fr}.st,.b .st2{border-left:0;border-top:2px dashed #b8c0cc}.g{grid-template-columns:repeat(2,1fr)}.rt .c,.b .big .c{font-size:2.2rem}}
+
+/* easyJet */
+.ez{background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.16);overflow:hidden;display:grid;grid-template-columns:1fr 250px;color:#222;font-family:Arial,Helvetica,sans-serif}
+.ez .bar1{background:#ff6600;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:7px 16px;font-size:.8rem}
+.ez .wmk{font-weight:700;font-size:1.25rem;letter-spacing:-.5px}
+.ez .bd{padding:16px 18px;background:linear-gradient(135deg,#fff 55%,#eaf3fb);position:relative}
+.ez .tl{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.ez .tm{font-size:.82rem;color:#555}.ez .ap{font-size:1.15rem;font-weight:700}
+.ez .mid{text-align:center;font-size:.78rem;color:#555}
+.ez .mid .ln{border-top:2px dotted #333;position:relative;margin:4px 0}
+.ez .mid .ln:after{content:"\2708";position:absolute;left:50%;top:-15px;transform:translateX(-50%);color:#222;font-size:1rem}
+.ez .info{display:flex;gap:26px;margin-top:22px;flex-wrap:wrap}
+.ez small{display:block;font-size:.66rem;color:#777}.ez .info b{font-size:1rem}
+.ez .rt{border-left:2px dashed #cfd6dd;display:flex;flex-direction:column}
+.ez .rt .bc{padding:10px 14px}.ez .rt svg.pdf{width:100%;height:120px;display:block}
+.ez .rt .sm{padding:6px 14px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.8rem}
+.ez .sim{padding:0 18px 8px;font-size:.6rem;color:#888;grid-column:1/-1}
+@media screen and (max-width:720px){.ez{grid-template-columns:1fr}.ez .rt{border-left:0;border-top:2px dashed #cfd6dd}}
+.al{background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.15);overflow:hidden;color:#1b1b1b}
+.al .t{padding:14px 22px;display:flex;justify-content:space-between;align-items:center}
+.al.e .t{flex-direction:column;gap:4px;text-align:center}
+.al .rr{display:flex;align-items:center;gap:14px;padding:18px 22px 4px}.al .rr .c{font-size:3.2rem;font-weight:700;line-height:1}
+.al .rr small{display:block;font-size:.72rem;color:#666;max-width:200px}.al .rr .a{flex:1;text-align:center;font-size:1.6rem}
+.al .bx{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 22px}
+.al .bx div{border-radius:8px;padding:8px 10px;background:#f3f5f8}.al.e .bx div{background:none;border:1px solid #d6d6d6;border-radius:0}
+.al .bx small,.al .nm small{display:block;font-size:.66rem;color:#666}.al .bx b{font-size:1.5rem}
+.al .nm{display:flex;justify-content:space-between;padding:6px 22px 12px;gap:10px;flex-wrap:wrap}.al .nm b{font-size:1.05rem}
+.al svg.pdf{width:calc(100% - 44px);height:84px;margin:0 22px;display:block}.al svg.bar{width:calc(100% - 44px);margin:0 22px;display:block}
+.al .sim{padding:8px 22px 12px;font-size:.62rem;color:#888}
+@media screen and (max-width:720px){.al .bx{grid-template-columns:repeat(2,1fr)}.al .rr .c{font-size:2.2rem}}
+@page{size:A4 landscape;margin:0}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{background:#fff!important;margin:0;padding:0}
+body *{visibility:hidden!important}
+#out,#out *{visibility:visible!important}
+#out{position:absolute;left:12mm;top:12mm;width:calc(100% - 24mm)}
+#out>*{box-shadow:none!important;break-inside:avoid;page-break-inside:avoid;width:100%}}
+</style></head><body><main>
+<h1>Cartes d'embarquement depuis SimBrief</h1>
+<div class="panel">
+ <label>Pseudo SimBrief<input id="user" placeholder="ex. jdupont"></label>
+ <label>Passager<input id="pax" value="DUPONT/JEAN MR"></label>
+ <label>Siège<input id="seat" value="12A"></label>
+ <button id="go">Récupérer mon dernier vol</button>
+ <button id="print" class="alt">Imprimer</button>
+</div>
+<details><summary>Ajouter d'anciens vols (JSON SimBrief)</summary>
+ <p>Ouvrez <code>https://www.simbrief.com/api/xml.fetcher.php?username=PSEUDO&amp;json=1</code>, copiez le texte et collez-le ici. Vous pouvez aussi charger plusieurs fichiers .json.</p>
+ <textarea id="raw" placeholder="{ ... }"></textarea>
+ <button id="parse" class="alt">Ajouter ce vol</button> <input type="file" id="files" accept=".json" multiple>
+</details>
+<div id="msg" role="status"></div>
+<div id="list"></div>
+<div id="out"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);const msg=t=>$("msg").textContent=t;
+// nom, mise en page, couleur 1, couleur 2, texte sur couleur 1, minuscules, langue
+const AL={
+EJU:["easyJet","ez","#ff6600","#222","#fff",1,"en"],EZS:["easyJet","ez","#ff6600","#222","#fff",1,"en"],
+AFR:["AIR FRANCE","c","#002157","#e30613","#fff",0,"fr"],DLH:["Lufthansa","c","#05164d","#f9ba00","#fff",0,"de"],
+BAW:["BRITISH AIRWAYS","c","#075aaa","#eb2226","#fff",0,"en"],KLM:["KLM","c","#00a1de","#fff","#fff",0,"en"],
+IBE:["IBERIA","c","#d7192d","#f6b800","#fff",0,"es"],ITY:["ITA AIRWAYS","c","#0b2a4a","#00a3e0","#fff",0,"it"],
+SAS:["SAS","c","#0a0a60","#e4002b","#fff",0,"en"],TAP:["TAP AIR PORTUGAL","c","#00a651","#e4002b","#fff",0,"pt"],
+SWR:["SWISS","c","#e30613","#fff","#fff",0,"de"],FIN:["FINNAIR","c","#0b1560","#a8e0f0","#fff",0,"en"],
+RYR:["Ryanair","b","#073590","#f1c933","#fff",0,"en"],EZY:["easyJet","ez","#ff6600","#222","#fff",1,"en"],
+VLG:["Vueling","b","#ffcc00","#4a4a4a","#333",1,"es"],TVF:["transavia","b","#00b140","#fff","#fff",1,"fr"],
+TRA:["transavia","b","#00b140","#fff","#fff",1,"en"],WZZ:["WIZZ","b","#c6007e","#fff","#fff",0,"en"],
+VOE:["volotea","b","#ff2d55","#fff","#fff",1,"es"],EWG:["Eurowings","b","#b9004e","#fff","#fff",0,"de"],
+AAL:["American Airlines","u","#0078d2","#c30019","#fff",0,"en"],DAL:["DELTA","u","#003366","#c8102e","#fff",0,"en"],
+UAL:["UNITED","u","#0033a0","#6cace4","#fff",0,"en"],ACA:["AIR CANADA","u","#f01428","#222","#fff",0,"en"],
+SWA:["Southwest","u","#304cb2","#ffbf27","#fff",0,"en"],JBU:["jetBlue","u","#003876","#0099cc","#fff",1,"en"],
+ASA:["Alaska","u","#01426a","#00a1e0","#fff",0,"en"],WJA:["WESTJET","u","#00a6a0","#222","#fff",0,"en"],
+SIA:["SINGAPORE AIRLINES","e","#00266b","#f0ab00","#fff",0,"en"],UAE:["Emirates","e","#d71921","#c8a35a","#fff",0,"en"],
+QTR:["QATAR AIRWAYS","e","#5c0632","#8d9093","#fff",0,"en"],ETD:["ETIHAD AIRWAYS","e","#3d3d3d","#bd8b13","#fff",0,"en"],
+JAL:["JAPAN AIRLINES","e","#c8102e","#222","#fff",0,"en"],ANA:["ANA","e","#13448f","#00a0de","#fff",0,"en"],
+KAL:["KOREAN AIR","e","#00256c","#00aaff","#fff",0,"en"],CPA:["CATHAY PACIFIC","e","#005d63","#a1a8ab","#fff",0,"en"],
+THA:["THAI","e","#4b2a86","#e0a526","#fff",0,"en"],MAS:["Malaysia Airlines","e","#c8102e","#00266b","#fff",0,"en"],
+QFA:["QANTAS","e","#e40000","#fff","#fff",0,"en"],ANZ:["AIR NEW ZEALAND","e","#111","#9aa0a6","#fff",0,"en"],
+CAL:["CHINA AIRLINES","e","#0d3b66","#e60012","#fff",0,"en"],EVA:["EVA AIR","e","#00a95c","#f7941d","#fff",0,"en"],
+CCA:["AIR CHINA","e","#c8102e","#222","#fff",0,"en"],CES:["CHINA EASTERN","e","#1e4aa0","#e60012","#fff",0,"en"],
+CSN:["CHINA SOUTHERN","e","#0a4c9a","#e60012","#fff",0,"en"],
+RAM:["ROYAL AIR MAROC","c","#c1272d","#006233","#fff",0,"fr"],DAH:["AIR ALGÉRIE","c","#d52b1e","#006633","#fff",0,"fr"],
+TAR:["TUNISAIR","c","#c8102e","#fff","#fff",0,"fr"],ETH:["ETHIOPIAN","c","#00a651","#ffcc00","#fff",0,"en"],
+MSR:["EGYPTAIR","c","#00247d","#f4b223","#fff",0,"en"],SAA:["SOUTH AFRICAN AIRWAYS","c","#003478","#f9a01b","#fff",0,"en"],
+SVA:["SAUDIA","c","#006c35","#fff","#fff",0,"en"],THY:["TURKISH AIRLINES","c","#c8102e","#222","#fff",0,"en"],
+LAN:["LATAM","c","#1b0088","#e4004b","#fff",0,"es"],TAM:["LATAM","c","#1b0088","#e4004b","#fff",0,"pt"],
+AVA:["AVIANCA","c","#da291c","#fff","#fff",0,"es"],CMP:["COPA AIRLINES","c","#0066b3","#fff","#fff",0,"es"],
+ARG:["Aerolíneas Argentinas","c","#00a1e0","#fff","#fff",0,"es"],AZU:["AZUL","c","#0033a0","#00a0e1","#fff",0,"pt"]};
+const L={es:["Pasajero","Vuelo","Fecha","Avión","Embarque","Salida","Llegada","Puerta / Grupo","Asiento","Origen","Destino","Tarjeta de embarque"],
+it:["Passeggero","Volo","Data","Aeromobile","Imbarco","Partenza","Arrivo","Gate / Gruppo","Posto","Da","A","Carta d'imbarco"],
+pt:["Passageiro","Voo","Data","Aeronave","Embarque","Partida","Chegada","Portão / Grupo","Assento","De","Para","Cartão de embarque"],en:["Passenger","Flight","Date","Aircraft","Boarding","Departs","Arrives","Gate / Group","Seat","From","To","Boarding pass"],
+fr:["Passager / Passenger","Vol / Flight","Date","Avion","Embarquement","Départ","Arrivée","Porte / Groupe","Siège","De","Vers","Carte d'embarquement"],
+de:["Passagier","Flug","Datum","Flugzeug","Boarding","Abflug","Ankunft","Gate / Gruppe","Sitz","Von","Nach","Bordkarte"]};
+const hash=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
+const rng=s=>()=>{s=(Math.imul(s^(s>>>15),2246822507)+0x6d2b79f5)>>>0;return s/4294967296};
+const pad=n=>String(n).padStart(2,"0");
+const hm=(t,o=0)=>{const d=new Date((+t+o)*1000);return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())};
+function bars(txt){const r=rng(hash(txt));let x=0,o="";while(x<200){const w=1+Math.floor(r()*4);if(r()>.35)o+=`<rect x="${x}" y="0" width="${w}" height="64" fill="#111"/>`;x+=w+1+Math.floor(r()*2)}return `<svg class="bar" viewBox="0 0 200 64" preserveAspectRatio="none">${o}</svg>`}
+function qr(txt){const r=rng(hash(txt)),n=25;let o="";const fin=(x,y)=>`<rect x="${x}" y="${y}" width="7" height="7" fill="#111"/><rect x="${x+1}" y="${y+1}" width="5" height="5" fill="#fff"/><rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#111"/>`;
+for(let i=0;i<n;i++)for(let j=0;j<n;j++){if((i<8&&j<8)||(i<8&&j>n-9)||(i>n-9&&j<8))continue;if(r()>.5)o+=`<rect x="${j}" y="${i}" width="1" height="1" fill="#111"/>`}
+return `<svg class="qr" viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${o}${fin(0,0)}${fin(n-7,0)}${fin(0,n-7)}</svg>`}
+
+const tzo=d=>{const t=d.times||{};const f=(a,b)=>{let x=parseFloat(a);if(isNaN(x))x=parseFloat(b);if(isNaN(x))return null;return Math.abs(x)<=14?x*3600:x};return[f(t.orig_timezone,d.origin&&d.origin.timezone),f(t.dest_timezone,d.destination&&d.destination.timezone)]};
+function info(d){const tz=tzo(d);const g=d.general||{},o=d.origin||{},de=d.destination||{},t=d.times||{},ac=d.aircraft||{};
+const icao=(g.icao_airline||"").toUpperCase();const a=AL[icao]||[icao||"AIRLINE","c","#14213d","#f5a623","#fff",0,"en"];
+const fn=(g.icao_airline||"")+(g.flight_number||"");const fi=(icao&&g.flight_number)?(g.flight_number):fn;
+return{a,icao,fn,from:o.iata_code||o.icao_code||"---",to:de.iata_code||de.icao_code||"---",fromN:o.name||"",toN:de.name||"",
+out:+t.sched_out,inn:+t.sched_in,ac:ac.icaocode||ac.base_type||"-",tzo:tz[0]||0,tzd:tz[1]||0,sfx:(tz[0]==null||tz[1]==null)?"Z":"",id:(d.params&&d.params.request_id)||String(t.sched_out)+fn}}
+
+
+function pdf417(txt){const r=rng(hash(txt));let o="";for(let y=0;y<48;y++){let x=0;while(x<100){const w=1+Math.floor(r()*3);if(r()>.45)o+=`<rect x="${x}" y="${y*2.5}" width="${w}" height="2.2" fill="#111"/>`;x+=w}}return `<svg class="pdf" viewBox="0 0 100 120" preserveAspectRatio="none">${o}</svg>`}
+const EZI={EZY:"U2",EJU:"EC",EZS:"DS"};const ezn=v=>(EZI[v.icao]||v.icao)+" "+v.fn.slice(3);
+function ezCard(d,v){const o=d.origin||{},de=d.destination||{};const pax=$("pax").value,seat=$("seat").value.toUpperCase();
+const r=rng(hash(v.fn+v.from+v.to+v.out));const ref=Array.from({length:6},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(r()*32)]).join("");const gate=String(1+Math.floor(r()*60));
+const tz1=v.tzo,tz2=v.tzd;
+const dd=new Date((v.out+tz1)*1000).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"long",timeZone:"UTC"}).replace(/^(\w+)/,"$1,");
+const c1=o.city||v.fromN,c2=de.city||v.toN,code=pax+v.fn+v.from+v.to+seat+v.out;
+return `<div class="ez"><div><div class="bar1"><span class="wmk">easyJet</span><span>Boarding pass</span></div>
+<div class="bd"><div class="tl"><div><div class="tm">${hm(v.out,tz1)}</div><div class="ap">${c1} (${v.from})</div></div>
+<div class="mid">${dd}<div class="ln"></div>${ezn(v)}</div>
+<div style="text-align:right"><div class="tm">${hm(v.inn,tz2)}</div><div class="ap">${c2} (${v.to})</div></div></div>
+<div class="info"><div><small>Booking ref</small><b>${ref}</b></div><div><small>Passenger</small><b>${pax}</b></div><div><small>Seat</small><b>${seat}</b></div><div><small>Gate</small><b>${gate}</b></div></div></div></div>
+<div class="rt"><div class="bar1"><span class="wmk">easyJet</span><span>${v.from} &rarr; ${v.to}</span></div><div class="bc">${pdf417(code)}</div>
+<div class="sm"><div><small>Flight</small>${ezn(v)}</div><div><small>Seat</small>${seat}</div><div><small>Name</small>${pax}</div><div><small>Boarding</small>${hm(v.out,tz1-2400)}</div></div></div>
+<div class="sim">Flight simulation - not valid for travel</div></div>`}
+function altCard(v,lay,nm,c1,c2,tx,T,pax,seat,gate,grp,dt,code,sim){const e=lay==="e";
+const head=e?`<div class="t" style="background:${c1};color:${tx};border-bottom:5px solid ${c2}"><span class="wm">${nm}</span><span style="font-size:.8rem;letter-spacing:1px">${T[11]}</span></div>`
+:`<div class="t" style="background:${c1};color:${tx}"><span class="wm">${nm}</span><b>${T[11]}</b></div>`;
+return `<div class="al ${e?"e":""}">${head}<div class="rr"><div><div class="c">${v.from}</div><small>${v.fromN}</small></div><div class="a" style="color:${c2==="#fff"?c1:c2}">&#9992;</div><div style="text-align:right"><div class="c">${v.to}</div><small>${v.toN}</small></div></div>
+<div class="bx"><div><small>${T[7].split(" / ")[0]}</small><b>${gate}</b></div><div><small>${T[4]}</small><b>${hm(v.out,v.tzo-2400)}${v.sfx}</b></div><div><small>${T[8]}</small><b>${seat}</b></div><div><small>${T[7].split(" / ")[1]||"Group"}</small><b>${grp}</b></div></div>
+<div class="nm"><div><small>${T[0]}</small><b>${pax}</b></div><div><small>${T[1]}</small><b>${v.fn}</b></div><div><small>${T[2]}</small><b>${dt}</b></div><div><small>${T[5]}</small><b>${hm(v.out,v.tzo)}${v.sfx}</b></div></div>
+${e?bars(code):pdf417(code)}${sim}</div>`}
+function card(d){const v=info(d),[nm,lay,c1,c2,tx,low,lg]=v.a,T=L[lg],pax=$("pax").value.toUpperCase(),seat=$("seat").value.toUpperCase();
+const r=rng(hash(v.fn+v.from+v.to+v.out));const gate=String.fromCharCode(65+Math.floor(r()*6))+(1+Math.floor(r()*40));const grp=1+Math.floor(r()*5);const seq=String(1+Math.floor(r()*180)).padStart(3,"0");
+const dt=new Date((v.out+v.tzo)*1000).toLocaleDateString(({de:"de-DE",fr:"fr-FR",es:"es-ES",it:"it-IT",pt:"pt-PT"})[lg]||"en-GB",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).toUpperCase();
+const code=`${pax}${v.fn}${v.from}${v.to}${seat}${v.out}`;
+const fields=[[T[0],pax],[T[1],v.fn],[T[2],dt],[T[3],v.ac],[T[4],hm(v.out,v.tzo-2400)+v.sfx],[T[5],hm(v.out,v.tzo)+v.sfx],[T[6],hm(v.inn,v.tzd)+v.sfx],[T[7],gate+" / "+grp]];
+if(lay==="ez")return ezCard(d,v);
+const sim=`<div class="sim">Flight simulation – not valid for travel</div>`;
+if(lay==="u"||lay==="e")return altCard(v,lay,nm,c1,c2,tx,T,pax,seat,gate,grp,dt,code,sim);
+if(lay==="b"){return `<div class="b" style="background:${c1};color:${tx}"><div class="top"><span class="wm ${low?"low":""}">${nm}</span><b>${T[11]}</b></div>
+<div class="card"><div><div class="big"><div><div class="c">${v.from}</div><small>${v.fromN}</small></div><div style="font-size:1.6rem;color:${c1}">&#9992;</div><div style="text-align:right"><div class="c">${v.to}</div><small>${v.toN}</small></div></div>
+<div class="g" style="padding:14px 0 0">${fields.map(f=>`<div><small>${f[0]}</small><b>${f[1]}</b></div>`).join("")}</div></div>
+<div class="st2">${qr(code)}<div style="margin-top:8px"><small style="font-size:.66rem;color:#666">${T[8]}</small><br><b style="font-size:1.6rem">${seat}</b></div><div style="font-size:.8rem;margin-top:4px">${v.fn} · ${v.from}→${v.to}</div></div></div>${sim}</div>`}
+return `<div class="p"><div><div class="h" style="background:${c1};color:${tx}"><span class="wm ${low?"low":""}">${nm}</span><b>${T[11]}</b></div>
+<div class="rt"><div><div class="c">${v.from}</div><small>${v.fromN}</small></div><div class="a" style="color:${c2}">&#9992;</div><div style="text-align:right"><div class="c">${v.to}</div><small>${v.toN}</small></div></div>
+<div class="g">${fields.map(f=>`<div><small>${f[0]}</small><b>${f[1]}</b></div>`).join("")}</div><div class="stripe" style="background:linear-gradient(90deg,${c1} 70%,${c2} 70%)"></div></div>
+<div class="st"><div class="row"><div><small>${T[1]}</small><b>${v.fn}</b></div><div><small>${T[8]}</small><b>${seat}</b></div></div><div><small>${T[0]}</small><b>${pax}</b></div>
+<div class="row"><div><small>${T[9]}</small><b>${v.from}</b></div><div><small>${T[10]}</small><b>${v.to}</b></div></div>${bars(code)}${sim}</div></div>`}
+
+// historique
+let H=[];try{H=JSON.parse(localStorage.getItem("sbHist")||"[]")}catch(e){}
+let cur=null;
+const save=()=>{try{localStorage.setItem("sbHist",JSON.stringify(H))}catch(e){}};
+function add(d){const v=info(d);if(!v.out){msg("JSON non reconnu : ce n'est pas un plan SimBrief.");return false}
+const i=H.findIndex(h=>h.id===v.id);if(i<0)H.push({id:v.id,out:v.out,d:{general:d.general,origin:{iata_code:d.origin?.iata_code,icao_code:d.origin?.icao_code,name:d.origin?.name,city:d.origin?.city,timezone:d.origin?.timezone},destination:{iata_code:d.destination?.iata_code,icao_code:d.destination?.icao_code,name:d.destination?.name,city:d.destination?.city,timezone:d.destination?.timezone},times:{sched_out:d.times?.sched_out,sched_in:d.times?.sched_in,orig_timezone:d.times?.orig_timezone,dest_timezone:d.times?.dest_timezone},aircraft:{icaocode:d.aircraft?.icaocode,base_type:d.aircraft?.base_type},params:{request_id:d.params?.request_id}}});
+H.sort((a,b)=>b.out-a.out);save();return v.id}
+function show(id){cur=id;const h=H.find(x=>x.id===id);if(!h)return;$("out").innerHTML=card(h.d);list()}
+function list(){$("list").innerHTML=H.map(h=>{const v=info(h.d);const dt=new Date((v.out+v.tzo)*1000).toLocaleDateString("fr-FR",{timeZone:"UTC"});
+return `<button class="fl ${h.id===cur?"sel":""}" data-id="${h.id}"><i style="background:${v.a[2]}"></i><div><b>${v.from} → ${v.to}</b><span>${v.a[0]} ${v.fn} · ${v.ac}</span></div><em>${dt}</em></button>`}).join("")||"<p>Aucun vol enregistré pour l'instant.</p>";
+document.querySelectorAll(".fl").forEach(b=>b.onclick=()=>show(b.dataset.id))}
+
+$("go").onclick=async()=>{const u=$("user").value.trim();if(!u){msg("Entrez votre pseudo SimBrief.");return}
+try{localStorage.setItem("sbUser",u)}catch(e){}msg("Chargement...");
+try{const r=await fetch("https://www.simbrief.com/api/xml.fetcher.php?username="+encodeURIComponent(u)+"&json=1");if(!r.ok)throw new Error("HTTP "+r.status);
+const id=add(await r.json());if(id){msg("Vol ajouté à votre liste.");show(id)}}
+catch(e){msg("Récupération impossible ("+e.message+"). Utilisez l'ajout par JSON ci-dessous.")}};
+$("parse").onclick=()=>{try{const id=add(JSON.parse($("raw").value));if(id){$("raw").value="";msg("Vol ajouté.");show(id)}}catch(e){msg("JSON invalide : "+e.message)}};
+$("files").onchange=async e=>{let n=0,last;for(const f of e.target.files){try{const id=add(JSON.parse(await f.text()));if(id){n++;last=id}}catch(x){}}msg(n+" vol(s) importé(s).");if(last)show(last);else list()};
+$("print").onclick=()=>window.print();
+["pax","seat"].forEach(i=>$(i).addEventListener("input",()=>{if(cur)show(cur)}));
+try{$("user").value=localStorage.getItem("sbUser")||""}catch(e){}
+list();if(H.length)show(H[0].id);
+</script></body></html>
